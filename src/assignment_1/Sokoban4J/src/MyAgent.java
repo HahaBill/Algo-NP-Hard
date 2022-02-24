@@ -2,6 +2,10 @@ import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import agents.ArtificialAgent;
 import game.actions.EDirection;
@@ -23,6 +27,7 @@ public class MyAgent extends ArtificialAgent {
 		long searchStartMillis = System.currentTimeMillis();
 		
 		List<EDirection> result = new ArrayList<EDirection>();
+		search(result);
 		//dfs(5, result); // the number marks how deep we will search (the longest plan we will consider)
 
 		long searchTime = System.currentTimeMillis() - searchStartMillis;
@@ -51,6 +56,7 @@ public class MyAgent extends ArtificialAgent {
 		explored.add(init);
 
 		do {
+			if (searchedNodes == 20) return false;
 			searchedNodes++;
 
 			current = pq.remove(); 
@@ -59,22 +65,24 @@ public class MyAgent extends ArtificialAgent {
 			List<CAction> actions = new LinkedList<>();
 			
 			for (CMove move : CMove.getActions()) {
-				if (move.isPossible(board)) actions.add(move);
+				if (move.isPossible(currState)) actions.add(move);
 			}
 			for (CPush push : CPush.getActions()) {
-				if (push.isPossible(board)) actions.add(push);
+				if (push.isPossible(currState)) actions.add(push);
 			}
 			
-			for (CAction action : action) {
-				BoardCompact nextState  = action.perform(board.clone());
+			for (CAction action : actions) {
+				BoardCompact nextState = currState.clone();
+				action.perform(nextState);
 				if (explored.contains(nextState)) continue;
 				explored.add(nextState);
-				pq.add(new Node<S,A>(nextState, action, current, current.getCost() + 1, heuristic_function(nextState)));
+				pq.add(new Node(nextState, action, current, current.getCost() + 1, heuristic_function(nextState)));
 			}
 
 		} while (!pq.isEmpty() && !current.getState().isVictory());
 
 		current.reconstructPath(result);
+
 		return current.getState().isVictory();
 	}
 
@@ -132,7 +140,7 @@ class Node implements Comparable<Node> {
 	public CAction incomingAction;
 	public Node pred;
 
-	public Node(BoardCompact state, A action, Node pred, double cost, double estimate) {
+	public Node(BoardCompact state, CAction action, Node pred, double cost, double estimate) {
 		this.state = state;
 		this.h = estimate;
 		this.incomingAction = action;
