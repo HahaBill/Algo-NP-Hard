@@ -123,6 +123,7 @@ public class MyAgent extends ArtificialAgent {
 
 			sum_distance = sum_distance + min_dist;
 		}
+		assert sum_distance > 0;
 		return sum_distance;
 	}
 
