@@ -1,5 +1,6 @@
 import static java.lang.System.out;
 import java.util.ArrayList;
+import java.util.function.IntPredicate;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.HashSet;
@@ -30,7 +31,7 @@ public class MyAgent extends ArtificialAgent {
 		List<EDirection> result = new ArrayList<EDirection>();
 
 		//////// GROUP 42 IMPLEMENTATION ///////////
-		this.goals = findingGoals(board);
+		this.goals = findOnBoard(board, CTile::forSomeBox);
 		search(result);
 
 		////////////////////////////////////////////
@@ -47,8 +48,8 @@ public class MyAgent extends ArtificialAgent {
 		
 		return result.isEmpty() ? null : result;
 	}
-
-	private List<Position> findingGoals(BoardCompact board) {
+	
+/*	private List<Position> findingGoals(BoardCompact board) {
 		int[][] tiles = board.tiles;
 		int w = board.width();
 		int h = board.height();
@@ -64,9 +65,9 @@ public class MyAgent extends ArtificialAgent {
 		}
 		
 		return goals;
-	}
-	
-	private List<Position> findBoxes(BoardCompact board) {
+	}*/
+
+/*	private List<Position> findBoxes(BoardCompact board) {
 		List<Position> result = new LinkedList<>();
 		int[][] tiles = board.tiles;
 		int w = board.width();
@@ -81,6 +82,21 @@ public class MyAgent extends ArtificialAgent {
 			}
 		}
 		
+		return result;
+	}	*/
+
+	private List<Position> findOnBoard(BoardCompact board, IntPredicate predicate) {
+		List<Position> result = new LinkedList<>();
+		int[][] tiles = board.tiles;
+
+		for (int i = 0; i < board.width(); i++) {
+			for (int j = 0; j < board.height(); j++) {
+				if (predicate.test(tiles[i][j])) {
+					result.add(new Position(i, j));
+				}
+			}
+		}
+
 		return result;
 	}
 	
@@ -119,7 +135,7 @@ public class MyAgent extends ArtificialAgent {
 		Set<BoardCompact> explored = new HashSet<>();
 		BoardCompact init = board.clone();
 		
-		Node current = new Node(init, findBoxes(board), 0, 0);
+		Node current = new Node(init, findOnBoard(board, CTile::isSomeBox), 0, 0);
 
 		pq.add(current);
 		explored.add(init);
