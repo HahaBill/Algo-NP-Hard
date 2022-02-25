@@ -171,7 +171,7 @@ public class MyAgent extends ArtificialAgent {
 		return current.state.isVictory();
 	}
 
-	private boolean dfs(int level, List<EDirection> result) {
+/*	private boolean dfs(int level, List<EDirection> result) {
 		if (level <= 0) return false; // DEPTH-LIMITED
 		
 		++searchedNodes;
@@ -215,5 +215,5 @@ public class MyAgent extends ArtificialAgent {
 		}
 		
 		return false;
-	}
+	}	*/
 }
