@@ -11,6 +11,7 @@ import agents.ArtificialAgent;
 import game.actions.EDirection;
 import game.actions.compact.*;
 import game.board.compact.BoardCompact;
+import game.board.compact.CTile;
 
 /**
  * The simplest Tree-DFS agent.
@@ -18,6 +19,7 @@ import game.board.compact.BoardCompact;
  */
 public class MyAgent extends ArtificialAgent {
 	protected BoardCompact board;
+	protected List<Position> goals;
 	protected int searchedNodes;
 	
 	@Override
@@ -25,9 +27,15 @@ public class MyAgent extends ArtificialAgent {
 		this.board = board;
 		searchedNodes = 0;
 		long searchStartMillis = System.currentTimeMillis();
-		
+
 		List<EDirection> result = new ArrayList<EDirection>();
+
+		//////// GROUP 42 IMPLEMENTATION ///////////
+		this.goals = findingGoals(board);
 		search(result);
+
+		////////////////////////////////////////////
+
 		//dfs(5, result); // the number marks how deep we will search (the longest plan we will consider)
 
 		long searchTime = System.currentTimeMillis() - searchStartMillis;
@@ -40,9 +48,71 @@ public class MyAgent extends ArtificialAgent {
 		
 		return result.isEmpty() ? null : result;
 	}
+
+	private List<Position> findingGoals(BoardCompact board) {
+		int[][] tiles = board.tiles;
+		int w = board.width();
+		int h = board.height();
+
+		List<Position> goals = new LinkedList<>();
+		for(int i = 0; i < w; i++) {
+			for(int j = 0; j < h; j++) {
+				int tile_type = tiles[i][j];
+				if(CTile.forSomeBox(tile_type)) {
+					goals.add(new Position(i, j));
+				}
+			}
+		}
+		
+		return goals;
+	}
 	
-	private int heuristic_function(BoardCompact state) {
-		return 0;
+	private List<Position> findBoxes(BoardCompact board) {
+		List<Position> result = new LinkedList<>();
+		int[][] tiles = board.tiles;
+		int w = board.width();
+		int h = board.height();
+
+		for(int i = 0; i < w; i++) {
+			for(int j = 0; j < h; j++) {
+				int tile_type = tiles[i][j];
+				if(CTile.isSomeBox(tile_type)) {
+					result.add(new Position(i, j));
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	//put in the desired heuristic to be used
+	private int heuristic_function(Node curr) {
+		return heuristic_manhattan(curr);
+	}
+
+	private int heuristic_manhattan(Node curr) {
+		int sum_distance = 0;
+		
+		// for each box find min distance out of all goals and sum them all
+		for(Position box : curr.getBoxes()) {
+			int b_x = box.x;
+			int b_y = box.y;
+			int min_dist = Integer.MAX_VALUE;
+			
+			for (Position goal : goals) {
+				int g_x = goal.x;
+				int g_y = goal.y;
+				int temp_dist = manhattan(b_x, b_y, g_x, g_y);
+				if(min_dist > temp_dist) { min_dist = temp_dist; }
+			}
+
+			sum_distance = sum_distance + min_dist;
+		}
+		return sum_distance;
+	}
+
+	private int manhattan(int source_x, int source_y, int destination_x, int destination_y) {
+		return Math.abs(destination_x - source_x) + Math.abs(destination_y - source_y);
 	}
 
   	private boolean search(List<EDirection> result) {
@@ -50,13 +120,13 @@ public class MyAgent extends ArtificialAgent {
 		Set<BoardCompact> explored = new HashSet<>();
 		BoardCompact init = board.clone();
 		
-		Node current = new Node(init, null, null, 0, heuristic_function(init));
+		Node current = new Node(init, findBoxes(board), 0, 0);
 
 		pq.add(current);
 		explored.add(init);
 
 		do {
-			if (searchedNodes == 20) return false;
+			//if (searchedNodes == 10000) return false;
 			searchedNodes++;
 
 			current = pq.remove(); 
@@ -76,7 +146,7 @@ public class MyAgent extends ArtificialAgent {
 				action.perform(nextState);
 				if (explored.contains(nextState)) continue;
 				explored.add(nextState);
-				pq.add(new Node(nextState, action, current, current.getCost() + 1, heuristic_function(nextState)));
+				pq.add(new Node(nextState, action, current, heuristic_function(current)));
 			}
 
 		} while (!pq.isEmpty() && !current.getState().isVictory());
@@ -137,20 +207,71 @@ class Node implements Comparable<Node> {
 	private BoardCompact state;
 	private double h;
 	private double cost;
+	private final List<Position> boxes;
 	public CAction incomingAction;
 	public Node pred;
 
-	public Node(BoardCompact state, CAction action, Node pred, double cost, double estimate) {
+	public Node(BoardCompact state, List<Position> boxes, double cost, double estimate) {
 		this.state = state;
 		this.h = estimate;
-		this.incomingAction = action;
+		this.incomingAction = null;
+		this.boxes = boxes;
 		this.cost = cost;
-		this.pred = pred;
+		this.pred = null;
 	}
+
+	public Node(BoardCompact state, CAction incomingAction, Node prev, double h) {
+		this.state = state;
+		this.h = h;
+		this.cost = prev.cost + 1;
+		this.incomingAction = incomingAction;
+		this.pred = prev;
+
+		// if a box is moved, update the list
+		if (incomingAction instanceof CPush) {
+			List<Position> boxes = new ArrayList<>(prev.boxes.size());
+			int offsetX, offsetY;
+			switch (incomingAction.getDirection()) {
+				case UP:
+					offsetX = 0;
+					offsetY = -1;
+					break;
+				case DOWN:
+					offsetX = 0;
+					offsetY = 1;
+					break;
+				case LEFT:
+					offsetX = -1;
+					offsetY = 0;
+					break;
+				case RIGHT:
+					offsetX = 1;
+					offsetY = 0;
+					break;
+				default:
+					offsetX = 0;
+					offsetY = 0;
+			}
+			for (Position box : prev.boxes) {
+				//find the box which is at player position + offset
+				if (box.x == state.playerX + offsetX && box.y == state.playerY + offsetY) {
+					//we assume that a move is valid and do not do bound checks
+					boxes.add(new Position(box.x - offsetX, box.y - offsetY));
+				} else {
+					boxes.add(box);
+				}
+			}
+			this.boxes = boxes;
+		} else {
+			this.boxes = prev.boxes;
+		}
+	} 
 
 	public BoardCompact getState() { return state; }
 
 	public double getCost() { return cost; }
+
+	public final List<Position> getBoxes() { return boxes; }
 
 	public void reconstructPath(List<EDirection> actions) {
 		Node curr = this;
@@ -164,5 +285,20 @@ class Node implements Comparable<Node> {
 	@Override
 	public int compareTo(Node other) {
 		return Double.compare(this.h + this.cost, other.h + other.cost);
+	}
+}
+
+class Position {
+	int x;
+	int y;
+
+	public Position(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public void add(Position other) {
+		this.x += other.x;
+		this.y += other.y;
 	}
 }
