@@ -8,12 +8,12 @@ import game.actions.compact.CPush;
 import game.board.compact.BoardCompact;
 
 class Node implements Comparable<Node> {
-	private BoardCompact state;
-	private double h;
-	private double cost;
-	private final List<Position> boxes;
-	public CAction incomingAction;
-	public Node pred;
+	final BoardCompact state;
+	final List<Position> boxes;
+    private final double h;
+	private final double cost;
+	private final CAction incomingAction;
+	private final Node pred;
 
 	public Node(BoardCompact state, List<Position> boxes, double cost, double estimate) {
 		this.state = state;
@@ -69,13 +69,7 @@ class Node implements Comparable<Node> {
 		} else {
 			this.boxes = prev.boxes;
 		}
-	} 
-
-	public BoardCompact getState() { return state; }
-
-	public double getCost() { return cost; }
-
-	public final List<Position> getBoxes() { return boxes; }
+	}
 
 	public void reconstructPath(List<EDirection> actions) {
 		Node curr = this;

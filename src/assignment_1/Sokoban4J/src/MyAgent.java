@@ -92,8 +92,8 @@ public class MyAgent extends ArtificialAgent {
 	private int heuristic_manhattan(Node curr) {
 		int sum_distance = 0;
 		
-		// for each box find min distance out of all goals and sum them all
-		for(Position box : curr.getBoxes()) {
+		// for each box find min distance out of all goals and sum them
+		for(Position box : curr.boxes) {
 			int b_x = box.x;
 			int b_y = box.y;
 			int min_dist = Integer.MAX_VALUE;
@@ -129,7 +129,7 @@ public class MyAgent extends ArtificialAgent {
 			searchedNodes++;
 
 			current = pq.remove(); 
-			BoardCompact currState = current.getState();
+			BoardCompact currState = current.state;
 
 			List<CAction> actions = new LinkedList<>();
 			
@@ -148,11 +148,11 @@ public class MyAgent extends ArtificialAgent {
 				pq.add(new Node(nextState, action, current, heuristic_function(current)));
 			}
 
-		} while (!pq.isEmpty() && !current.getState().isVictory());
+		} while (!pq.isEmpty() && !current.state.isVictory());
 
 		current.reconstructPath(result);
 
-		return current.getState().isVictory();
+		return current.state.isVictory();
 	}
 
 	private boolean dfs(int level, List<EDirection> result) {
