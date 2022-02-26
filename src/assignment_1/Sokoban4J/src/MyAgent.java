@@ -3,9 +3,12 @@ import java.util.ArrayList;
 import java.util.function.IntPredicate;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Iterator;
 
 import agents.ArtificialAgent;
 import game.actions.EDirection;
@@ -49,42 +52,6 @@ public class MyAgent extends ArtificialAgent {
 		return result.isEmpty() ? null : result;
 	}
 	
-/*	private List<Position> findingGoals(BoardCompact board) {
-		int[][] tiles = board.tiles;
-		int w = board.width();
-		int h = board.height();
-
-		List<Position> goals = new LinkedList<>();
-		for(int i = 0; i < w; i++) {
-			for(int j = 0; j < h; j++) {
-				int tile_type = tiles[i][j];
-				if(CTile.forSomeBox(tile_type)) {
-					goals.add(new Position(i, j));
-				}
-			}
-		}
-		
-		return goals;
-	}*/
-
-/*	private List<Position> findBoxes(BoardCompact board) {
-		List<Position> result = new LinkedList<>();
-		int[][] tiles = board.tiles;
-		int w = board.width();
-		int h = board.height();
-
-		for(int i = 0; i < w; i++) {
-			for(int j = 0; j < h; j++) {
-				int tile_type = tiles[i][j];
-				if(CTile.isSomeBox(tile_type)) {
-					result.add(new Position(i, j));
-				}
-			}
-		}
-		
-		return result;
-	}	*/
-
 	private List<Position> findOnBoard(BoardCompact board, IntPredicate predicate) {
 		List<Position> result = new LinkedList<>();
 		int[][] tiles = board.tiles;
@@ -99,13 +66,39 @@ public class MyAgent extends ArtificialAgent {
 
 		return result;
 	}
-	
+
 	//put in the desired heuristic to be used
-	private int heuristic_function(Node curr) {
-		return heuristic_manhattan(curr);
+	private int heuristicFunction(Node curr) {
+		return 0;//heuristicManhattan(curr);
 	}
 
-	private int heuristic_manhattan(Node curr) {
+	private int heuristicBfs(Node curr) {
+		//TODO: from each box execute bfs to find the shortest path to the closest goal 
+		//idea: keep frontiers for each box; push forward one step at a time for each box
+		//use deadSquareDetection to avoid unnecessary search YE BOI
+		Iterator<Position> boxes = curr.boxes.iterator();
+		LinkedList<Queue<Position>> frontiers = new LinkedList<>();
+		LinkedList<Set<Position>> discovereds = new LinkedList<>();
+		for (Position box : curr.boxes) {
+			Queue<Position> q = new LinkedList<>();
+			Set<Position> s = new HashSet<>();
+			q.add(box);
+			s.add(box);
+			frontiers.add(q);
+			discovereds.add(s);
+		}
+		// !!make iterators for discovereds
+		// once a goal is reached for some box remove its frontier
+		while (!frontiers.isEmpty()) {
+			for (Queue<Position> frontier : frontiers) {
+				Position box = boxes.next();
+
+			}
+		}
+		return 0;
+	}
+
+	private int heuristicManhattan(Node curr) {
 		int sum_distance = 0;
 		
 		// for each box find min distance out of all goals and sum them
@@ -123,7 +116,7 @@ public class MyAgent extends ArtificialAgent {
 
 			sum_distance = sum_distance + min_dist;
 		}
-		assert sum_distance > 0;
+
 		return sum_distance;
 	}
 
@@ -156,13 +149,13 @@ public class MyAgent extends ArtificialAgent {
 			for (CPush push : CPush.getActions()) {
 				if (push.isPossible(currState)) actions.add(push);
 			}
-			
+
 			for (CAction action : actions) {
 				BoardCompact nextState = currState.clone();
 				action.perform(nextState);
 				if (explored.contains(nextState)) continue;
 				explored.add(nextState);
-				pq.add(new Node(nextState, action, current, heuristic_function(current)));
+				pq.add(new Node(nextState, action, current, this::heuristicFunction));
 			}
 
 		} while (!pq.isEmpty() && !current.state.isVictory());

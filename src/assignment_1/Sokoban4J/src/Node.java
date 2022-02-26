@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 import game.actions.EDirection;
 import game.actions.compact.CAction;
@@ -10,12 +11,12 @@ import game.board.compact.BoardCompact;
 class Node implements Comparable<Node> {
 	final BoardCompact state;
 	final List<Position> boxes;
-    private final double h;
-	private final double cost;
+    private final int h;
+	private final int cost;
 	private final CAction incomingAction;
 	private final Node pred;
 
-	public Node(BoardCompact state, List<Position> boxes, double cost, double estimate) {
+	public Node(BoardCompact state, List<Position> boxes, int cost, int estimate) {
 		this.state = state;
 		this.h = estimate;
 		this.incomingAction = null;
@@ -24,9 +25,9 @@ class Node implements Comparable<Node> {
 		this.pred = null;
 	}
 
-	public Node(BoardCompact state, CAction incomingAction, Node prev, double h) {
+	public Node(BoardCompact state, CAction incomingAction, Node prev, ToIntFunction<Node> fH) {
 		this.state = state;
-		this.h = h;
+		//this.h = h;
 		this.cost = prev.cost + 1;
 		this.incomingAction = incomingAction;
 		this.pred = prev;
@@ -65,9 +66,11 @@ class Node implements Comparable<Node> {
 					boxes.add(box);
 				}
 			}
-			this.boxes = boxes;
+			this.boxes = boxes;			
+			this.h = fH.applyAsInt(this);
 		} else {
 			this.boxes = prev.boxes;
+			this.h = prev.h; //fine as long as only box position is considered by the heuristic, otherwise recompute every time!!
 		}
 	}
 
