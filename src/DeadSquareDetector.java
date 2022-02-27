@@ -14,7 +14,6 @@ class DeadSquareDetector {
         boolean[][] deadSquares = new boolean[board.width()][board.height()];
         int[][] tiles = board.tiles;
         
-        // for each board position
         for (int x = 0; x < board.width(); x++) {
             for (int y = 0; y < board.height(); y++) {
                 int startTile = tiles[x][y];
@@ -44,11 +43,11 @@ class DeadSquareDetector {
                         break;
                     }
                     
-                    // (1) check if there is not box or wall to the left ans right of curr            
+                    // (1) check if there is not a wall to the left and right of curr            
                     try {
                         int tileLeft  = tiles[curr.x - 1][curr.y];
                         int tileRight = tiles[curr.x + 1][curr.y];
-                        if (CTile.isWalkable(tileLeft) && CTile.isWalkable(tileRight)) {
+                        if (!CTile.isWall(tileLeft) && !CTile.isWall(tileRight)) {
                             Position p = new Position(curr.x + 1, curr.y);
                             if (!explored.contains(p)) frontier.add(p);
                             p = new Position(curr.x - 1, curr.y);
@@ -56,11 +55,11 @@ class DeadSquareDetector {
                         }
                     } catch (ArrayIndexOutOfBoundsException e) { }
 
-                    // (2) check if there is not box or wall to the up and down of curr
+                    // (2) check if there is not a wall up and down from curr
                     try {
                         int tileUp   = tiles[curr.x][curr.y - 1];
                         int tileDown = tiles[curr.x][curr.y + 1];
-                        if (CTile.isWalkable(tileUp) && CTile.isWalkable(tileDown)) {
+                        if (!CTile.isWall(tileUp) && !CTile.isWall(tileDown)) {
                             Position p = new Position(curr.x, curr.y - 1);
                             if (!explored.contains(p)) frontier.add(p);
                             p = new Position(curr.x, curr.y + 1);

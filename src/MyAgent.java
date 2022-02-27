@@ -151,6 +151,11 @@ public class MyAgent extends ArtificialAgent {
 			}
 
 			for (CAction action : actions) {
+				// pruning away dead square moves
+				if (action instanceof CPush) {
+					Position p = Position.getDisplaced(currState.playerX, currState.playerY, action.getDirection(), 2);
+					if (deadSquares[p.x][p.y]) continue;
+				}
 				BoardCompact nextState = currState.clone();
 				action.perform(nextState);
 				if (explored.contains(nextState)) continue;
