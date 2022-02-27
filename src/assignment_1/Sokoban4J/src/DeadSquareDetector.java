@@ -54,7 +54,7 @@ class DeadSquareDetector {
                             p = new Position(curr.x - 1, curr.y);
                             if (!explored.contains(p)) frontier.add(p);
                         }
-                    } catch (ArrayIndexOutOfBoundsException e) { continue; }
+                    } catch (ArrayIndexOutOfBoundsException e) { }
 
                     // (2) check if there is not box or wall to the up and down of curr
                     try {
@@ -66,7 +66,7 @@ class DeadSquareDetector {
                             p = new Position(curr.x, curr.y + 1);
                             if (!explored.contains(p)) frontier.add(p);
                         }
-                    } catch (ArrayIndexOutOfBoundsException e) { continue; }
+                    } catch (ArrayIndexOutOfBoundsException e) { }
                 }
             }
         }
