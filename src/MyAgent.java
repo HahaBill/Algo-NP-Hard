@@ -24,6 +24,7 @@ public class MyAgent extends ArtificialAgent {
 	protected BoardCompact board;
 	protected List<Position> goals;
 	protected int searchedNodes;
+	protected boolean[][] deadSquares;
 	
 	@Override
 	protected List<EDirection> think(BoardCompact board) {
@@ -35,6 +36,7 @@ public class MyAgent extends ArtificialAgent {
 
 		//////// GROUP 42 IMPLEMENTATION ///////////
 		this.goals = findOnBoard(board, CTile::forSomeBox);
+		this.deadSquares = DeadSquareDetector.detect(board);
 		search(result);
 
 		////////////////////////////////////////////
