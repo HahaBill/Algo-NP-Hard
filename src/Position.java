@@ -11,6 +11,16 @@ class Position {
 		this.y = y;
 	}
 
+	public static Position getDisplaced(int x, int y, EDirection dir, int scale) {
+		switch(dir) {
+			case UP: return new Position(x, y - scale);
+			case DOWN: return new Position(x, y + scale);
+			case LEFT: return new Position(x - scale, y);
+			case RIGHT: return new Position(x + scale, y);
+			default: return new Position(0, 0);
+		}
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null || !(obj instanceof Position)) return false;
@@ -21,15 +31,5 @@ class Position {
 	@Override
 	public int hashCode() {
 		return this.x + this.y * MAGIC_PRIME;
-	}
-
-	public Position getNext(EDirection dir) {
-		switch(dir) {
-			case UP: return new Position(this.x, this.y - 1);
-			case DOWN: return new Position(this.x, this.y + 1);
-			case LEFT: return new Position(this.x - 1, this.y);
-			case RIGHT: return new Position(this.x + 1, this.y);
-			default: return new Position(0, 0);
-		}
 	}
 }
