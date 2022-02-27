@@ -74,31 +74,6 @@ public class MyAgent extends ArtificialAgent {
 		return heuristicManhattan(curr);
 	}
 
-	private int heuristicBfs(Node curr) {
-		//TODO: from each box execute bfs to find the shortest path to the closest goal 
-		//idea: keep frontiers for each box; push forward one step at a time for each box
-		//use deadSquareDetection to avoid unnecessary search YE BOI
-		Iterator<Position> boxes = curr.boxes.iterator();
-		LinkedList<Queue<Position>> frontiers = new LinkedList<>();
-		LinkedList<Set<Position>> discovereds = new LinkedList<>();
-		for (Position box : curr.boxes) {
-			Queue<Position> q = new LinkedList<>();
-			Set<Position> s = new HashSet<>();
-			q.add(box);
-			s.add(box);
-			frontiers.add(q);
-			discovereds.add(s);
-		}
-		// !!make iterators for discovereds
-		// once a goal is reached for some box remove its frontier
-		while (!frontiers.isEmpty()) {
-			for (Queue<Position> frontier : frontiers) {
-				Position box = boxes.next();
-
-			}
-		}
-		return 0;
-	}
 
 	private int heuristicManhattan(Node curr) {
 		int sum_distance = 0;
@@ -172,6 +147,35 @@ public class MyAgent extends ArtificialAgent {
 		return current.state.isVictory();
 	}
 
+	private int heuristicBfs(Node node) {
+		//TODO: from each box execute bfs to find the shortest path to the closest goal 
+		//idea: keep frontiers for each box; push forward one step at a time for each box
+		//use deadSquareDetection to avoid unnecessary search YE BOI
+		LinkedList<Queue<Position>> frontiersList = new LinkedList<>();
+		LinkedList<Set<Position>> discoveredList = new LinkedList<>();
+		// once a goal is found, drop it out of the set
+		List<Position> goals = new LinkedList<>(this.goals);
+		int[][] tiles = node.state.tiles;
+		for (Position box : node.boxes) {
+			Queue<Position> q = new LinkedList<>();
+			Set<Position> s = new HashSet<>();
+			q.add(box);
+			frontiersList.add(q);
+			discoveredList.add(s);
+		}
+		// once a goal is reached for some box remove its frontier
+		while (!frontiersList.isEmpty()) {
+			Iterator<Queue<Position>> frontiers = frontiersList.iterator();
+			Iterator<Set<Position>> discovereds = discoveredList.iterator();
+			while (frontiers.hasNext()) {
+				Queue<Position> frontier = frontiers.next();
+				Set<Position> explored = discovereds.next();
+				Position curr = frontier.remove();
+				//TODO
+			}
+		}
+		return 0;
+	}
 /*	private boolean dfs(int level, List<EDirection> result) {
 		if (level <= 0) return false; // DEPTH-LIMITED
 		
