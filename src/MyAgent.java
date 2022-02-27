@@ -71,7 +71,7 @@ public class MyAgent extends ArtificialAgent {
 
 	//put in the desired heuristic to be used
 	private int heuristicFunction(Node curr) {
-		return 0;//heuristicManhattan(curr);
+		return heuristicManhattan(curr);
 	}
 
 	private int heuristicBfs(Node curr) {
