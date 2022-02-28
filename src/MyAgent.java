@@ -34,14 +34,9 @@ public class MyAgent extends ArtificialAgent {
 
 		List<EDirection> result = new ArrayList<EDirection>();
 
-		//////// GROUP 42 IMPLEMENTATION ///////////
 		this.goals = findOnBoard(board, CTile::forSomeBox);
 		this.deadSquares = DeadSquareDetector.detect(board);
 		search(result);
-
-		////////////////////////////////////////////
-
-		//dfs(5, result); // the number marks how deep we will search (the longest plan we will consider)
 
 		long searchTime = System.currentTimeMillis() - searchStartMillis;
         
@@ -73,7 +68,6 @@ public class MyAgent extends ArtificialAgent {
 	private int heuristicFunction(Node curr) {
 		return heuristicManhattan(curr);
 	}
-
 
 	private int heuristicManhattan(Node curr) {
 		int sum_distance = 0;
@@ -150,7 +144,7 @@ public class MyAgent extends ArtificialAgent {
 	private int heuristicBfs(Node node) {
 		//TODO: from each box execute bfs to find the shortest path to the closest goal 
 		//idea: keep frontiers for each box; push forward one step at a time for each box
-		//use deadSquareDetection to avoid unnecessary search YE BOI
+		//use deadSquareDetection to avoid unnecessary search
 		LinkedList<Queue<Position>> frontiersList = new LinkedList<>();
 		LinkedList<Set<Position>> discoveredList = new LinkedList<>();
 		// once a goal is found, drop it out of the set
@@ -171,7 +165,7 @@ public class MyAgent extends ArtificialAgent {
 				Queue<Position> frontier = frontiers.next();
 				Set<Position> explored = discovereds.next();
 				Position curr = frontier.remove();
-				//TODO
+				
 			}
 		}
 		return 0;
