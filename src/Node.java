@@ -35,33 +35,13 @@ class Node implements Comparable<Node> {
 		// if a box is moved, update the list
 		if (incomingAction instanceof CPush) {
 			List<Position> boxes = new ArrayList<>(prev.boxes.size());
-			int offsetX, offsetY;
-			switch (incomingAction.getDirection()) {
-				case UP:
-					offsetX = 0;
-					offsetY = -1;
-					break;
-				case DOWN:
-					offsetX = 0;
-					offsetY = 1;
-					break;
-				case LEFT:
-					offsetX = -1;
-					offsetY = 0;
-					break;
-				case RIGHT:
-					offsetX = 1;
-					offsetY = 0;
-					break;
-				default:
-					offsetX = 0;
-					offsetY = 0;
-			}
+			
 			for (Position box : prev.boxes) {
+				Position offset = Position.getDisplaced(state.playerX, state.playerY, incomingAction.getDirection(), 1);
 				//find the box which is at player position + offset
-				if (box.x == state.playerX + offsetX && box.y == state.playerY + offsetY) {
+				if (box.x == offset.x && box.y == offset.y) {
 					//we assume that a move is valid and do not do bound checks
-					boxes.add(new Position(box.x - offsetX, box.y - offsetY));
+					boxes.add(new Position(box.x - offset.x, box.y - offset.y));
 				} else {
 					boxes.add(box);
 				}
