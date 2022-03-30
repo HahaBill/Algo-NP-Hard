@@ -60,5 +60,5 @@ y = np.arange(1, n+1)/n
 # plt.plot(x, y, color='purple')
 # plt.title(f"Cantor distribution on a sample volume of 1000")
 
-plt.plot(s, y, color='black')
+plt.plot(x, y, color='black')
 plt.show()

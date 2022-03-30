@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
-from numpy.random import Generator
+from numpy.random import default_rng
 
 def samplePoisson(rate=1):
     scale = 1 / rate
     count = 0
     sigma = 0.0
+    gen = default_rng()
 
     while sigma < rate:
-        x = Generator.exponential(scale=scale)
+        x = gen.exponential(scale=scale)
         sigma += x
         count += 1
 
